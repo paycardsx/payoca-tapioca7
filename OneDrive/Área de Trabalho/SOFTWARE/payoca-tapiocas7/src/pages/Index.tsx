@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import Header from '@/components/Header';
 import MenuItem from '@/components/MenuItem';
 import DeliveryCheck from '@/components/DeliveryCheck';
@@ -25,10 +25,17 @@ const pageVariants = {
   }
 };
 
+interface CartItem {
+  id: string;
+  name: string;
+  quantity: number;
+  price: number;
+}
+
 const Index = () => {
   const { menuItems } = useMenuItems();
-  const [deliveryPrice, setDeliveryPrice] = useState(5);
-  const [selectedNeighborhood, setSelectedNeighborhood] = useState('');
+  const [deliveryPrice, setDeliveryPrice] = useState<number>(0);
+  const [selectedNeighborhood, setSelectedNeighborhood] = useState<string>('');
   const { 
     cart, 
     handleAddItem, 
@@ -47,38 +54,42 @@ const Index = () => {
     setSelectedNeighborhood(neighborhood);
   };
 
-  const cartItems = Object.entries(cart).map(([id, quantity]) => {
+  const cartItems = useMemo<CartItem[]>(() => {
     const allItems = [
       ...menuItems.salgadas,
       ...menuItems.doces,
       ...menuItems.bebidas,
     ];
-    const item = allItems.find((item) => item.id === id);
-    return item
-      ? {
-          id,
-          name: item.name,
-          quantity,
-          price: item.price,
-        }
-      : null;
-  }).filter(Boolean);
+    
+    return Object.entries(cart)
+      .map(([id, quantity]) => {
+        const item = allItems.find((item) => item.id === id);
+        return item
+          ? {
+              id,
+              name: item.name,
+              quantity,
+              price: item.price,
+            }
+          : null;
+      })
+      .filter((item): item is CartItem => item !== null);
+  }, [cart, menuItems]);
 
   return (
     <motion.div
       initial="initial"
       animate="animate"
       variants={pageVariants}
-      className="min-h-screen bg-gray-50"
+      className="min-h-screen bg-surface"
     >
       <Header />
       
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8 space-y-8">
         <motion.section 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="mb-8"
         >
           <DeliveryCheck 
             onDeliveryPrice={handleDeliveryCheck} 
@@ -91,7 +102,6 @@ const Index = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="mb-12"
         >
           <MenuSections
             menuItems={menuItems}
@@ -101,36 +111,27 @@ const Index = () => {
           />
         </motion.section>
 
-        <motion.section 
+        <motion.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
-          className="mb-12"
         >
-          <Testimonials />
+          <Cart
+            items={cartItems}
+            onRemoveItem={handleRemoveItem}
+            onClearCart={handleClearCart}
+            deliveryPrice={deliveryPrice}
+            selectedNeighborhood={selectedNeighborhood}
+            deliveryAddress={deliveryAddress}
+            paymentMethod={paymentMethod}
+            cashAmount={cashAmount}
+            onSetDeliveryAddress={handleSetDeliveryAddress}
+            onSetPaymentMethod={handleSetPaymentMethod}
+            onSetCashAmount={handleSetCashAmount}
+          />
         </motion.section>
 
-        <AnimatePresence>
-          {cartItems.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.2 }}
-            >
-              <Cart
-                items={cartItems}
-                deliveryPrice={deliveryPrice}
-                selectedNeighborhood={selectedNeighborhood}
-                onRemoveItem={handleRemoveItem}
-                onIncreaseQuantity={handleAddItem}
-                onClearCart={handleClearCart}
-                onSetDeliveryAddress={handleSetDeliveryAddress}
-                menuItems={menuItems}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <Testimonials />
       </main>
 
       <Footer />

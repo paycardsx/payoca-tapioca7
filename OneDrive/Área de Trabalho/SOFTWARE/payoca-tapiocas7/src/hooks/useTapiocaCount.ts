@@ -8,7 +8,8 @@ export const useTapiocaCount = (cart: Record<string, number>) => {
     const tapiocaIds = new Set(tapiocaItems.map(item => item.id));
     
     return Object.entries(cart).reduce((count, [id, quantity]) => {
-      if (tapiocaIds.has(id)) {
+      // Exclude beverage IDs (which start with 'b')
+      if (tapiocaIds.has(id) && !id.startsWith('b')) {
         return count + quantity;
       }
       return count;
