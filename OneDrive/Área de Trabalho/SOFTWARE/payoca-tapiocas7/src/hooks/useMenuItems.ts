@@ -1,6 +1,20 @@
 import { useState } from 'react';
 
-const INITIAL_MENU_ITEMS = {
+interface MenuItem {
+  id: string;
+  name: string;
+  price: number;
+  description: string;
+  imageUrl: string;
+}
+
+interface MenuItems {
+  salgadas: MenuItem[];
+  doces: MenuItem[];
+  bebidas: MenuItem[];
+}
+
+const INITIAL_MENU_ITEMS: MenuItems = {
   salgadas: [
     { 
       id: '1', 
@@ -87,6 +101,6 @@ const INITIAL_MENU_ITEMS = {
 };
 
 export const useMenuItems = () => {
-  const [menuItems] = useState(INITIAL_MENU_ITEMS);
+  const [menuItems] = useState<MenuItems>(INITIAL_MENU_ITEMS);
   return { menuItems };
 };

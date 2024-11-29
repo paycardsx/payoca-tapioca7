@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { DeliveryAddress } from '@/components/DeliveryAddressForm';
 
 export interface CartItem {
@@ -9,29 +9,41 @@ export interface CartItem {
 }
 
 export const useCart = () => {
-  const [cart, setCart] = useState<Record<string, number>>({});
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [deliveryAddress, setDeliveryAddress] = useState<DeliveryAddress | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<string>('');
   const [cashAmount, setCashAmount] = useState<number>(0);
 
-  const handleAddItem = (id: string) => {
-    setCart(prev => ({ ...prev, [id]: (prev[id] || 0) + 1 }));
+  const handleAddItem = (item: Omit<CartItem, 'quantity'>) => {
+    setCartItems(prev => {
+      const existingItem = prev.find(i => i.id === item.id);
+      if (existingItem) {
+        return prev.map(i => 
+          i.id === item.id 
+            ? { ...i, quantity: i.quantity + 1 }
+            : i
+        );
+      }
+      return [...prev, { ...item, quantity: 1 }];
+    });
   };
 
   const handleRemoveItem = (id: string) => {
-    setCart(prev => {
-      const newCart = { ...prev };
-      if (newCart[id] > 1) {
-        newCart[id]--;
-      } else {
-        delete newCart[id];
+    setCartItems(prev => {
+      const existingItem = prev.find(i => i.id === id);
+      if (existingItem && existingItem.quantity > 1) {
+        return prev.map(i => 
+          i.id === id 
+            ? { ...i, quantity: i.quantity - 1 }
+            : i
+        );
       }
-      return newCart;
+      return prev.filter(i => i.id !== id);
     });
   };
 
   const handleClearCart = () => {
-    setCart({});
+    setCartItems([]);
     setDeliveryAddress(null);
     setPaymentMethod('');
     setCashAmount(0);
@@ -49,8 +61,13 @@ export const useCart = () => {
     setCashAmount(amount);
   };
 
+  const total = useMemo(() => {
+    return cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+  }, [cartItems]);
+
   return {
-    cart,
+    cart: cartItems,
+    total,
     deliveryAddress,
     paymentMethod,
     cashAmount,
@@ -59,6 +76,6 @@ export const useCart = () => {
     handleClearCart,
     handleSetDeliveryAddress,
     handleSetPaymentMethod,
-    handleSetCashAmount
+    handleSetCashAmount,
   };
 };
