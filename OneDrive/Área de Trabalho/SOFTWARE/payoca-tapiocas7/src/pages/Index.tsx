@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import Header from '@/components/Header';
 import MenuItem from '@/components/MenuItem';
 import DeliveryCheck from '@/components/DeliveryCheck';
@@ -6,7 +6,7 @@ import Cart from '@/components/Cart';
 import Testimonials from '@/components/Testimonials';
 import Footer from '@/components/Footer';
 import MenuSections from '@/components/MenuSections';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useMenuItems } from '@/hooks/useMenuItems';
 import { useCart } from '@/hooks/useCart';
 import { Utensils, Clock, MapPin } from 'lucide-react';
@@ -25,84 +25,114 @@ const pageVariants = {
   }
 };
 
+interface CartItem {
+  id: string;
+  name: string;
+  quantity: number;
+  price: number;
+}
+
 const Index = () => {
   const { menuItems } = useMenuItems();
   const [deliveryPrice, setDeliveryPrice] = useState<number>(0);
   const [selectedNeighborhood, setSelectedNeighborhood] = useState<string>('');
   const { 
     cart, 
-    deliveryAddress, 
-    paymentMethod, 
+    handleAddItem, 
+    handleRemoveItem, 
+    handleClearCart,
+    deliveryAddress,
+    paymentMethod,
     cashAmount,
-    handleSetDeliveryAddress 
+    handleSetDeliveryAddress,
+    handleSetPaymentMethod,
+    handleSetCashAmount
   } = useCart();
 
-  // Handler para atualizar o endereço quando o bairro é selecionado
-  const handleNeighborhoodSelect = (neighborhood: string) => {
+  const handleDeliveryCheck = (price: number, neighborhood: string) => {
+    setDeliveryPrice(price);
     setSelectedNeighborhood(neighborhood);
-    if (deliveryAddress) {
-      handleSetDeliveryAddress({
-        ...deliveryAddress,
-        neighborhood
-      });
-    }
   };
+
+  const cartItems = useMemo<CartItem[]>(() => {
+    const allItems = [
+      ...menuItems.salgadas,
+      ...menuItems.doces,
+      ...menuItems.bebidas,
+    ];
+    
+    return Object.entries(cart)
+      .map(([id, quantity]) => {
+        const item = allItems.find((item) => item.id === id);
+        return item
+          ? {
+              id,
+              name: item.name,
+              quantity,
+              price: item.price,
+            }
+          : null;
+      })
+      .filter((item): item is CartItem => item !== null);
+  }, [cart, menuItems]);
 
   return (
     <motion.div
       initial="initial"
       animate="animate"
       variants={pageVariants}
-      className="min-h-screen bg-gray-50"
+      className="min-h-screen bg-surface"
     >
       <Header />
+      
+      <main className="container mx-auto px-4 py-8 space-y-8">
+        <motion.section 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <DeliveryCheck 
+            onDeliveryPrice={handleDeliveryCheck} 
+            cart={cart}
+            selectedNeighborhood={selectedNeighborhood}
+          />
+        </motion.section>
 
-      <main className="container mx-auto px-4 py-8 space-y-12">
-        <section className="text-center space-y-4">
-          <h1 className="text-4xl font-bold text-gray-900">
-            Payoca Tapiocas
-          </h1>
-          <p className="text-xl text-gray-600">
-            Deliciosas tapiocas artesanais feitas com muito amor e carinho
-          </p>
-          <div className="flex flex-wrap justify-center gap-8 mt-8">
-            <div className="flex items-center gap-2 text-gray-700">
-              <Utensils className="w-5 h-5 text-primary" />
-              <span>Feito na hora</span>
-            </div>
-            <div className="flex items-center gap-2 text-gray-700">
-              <Clock className="w-5 h-5 text-primary" />
-              <span>Entrega rápida</span>
-            </div>
-            <div className="flex items-center gap-2 text-gray-700">
-              <MapPin className="w-5 h-5 text-primary" />
-              <span>Entregamos em toda Maceió</span>
-            </div>
-          </div>
-        </section>
+        <motion.section 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          <MenuSections
+            menuItems={menuItems}
+            onAddItem={handleAddItem}
+            onRemoveItem={handleRemoveItem}
+            cart={cart}
+          />
+        </motion.section>
 
-        <MenuSections 
-          menuItems={menuItems}
-          cart={cart}
-        />
-
-        <DeliveryCheck
-          selectedNeighborhood={selectedNeighborhood}
-          onNeighborhoodSelect={handleNeighborhoodSelect}
-          onDeliveryPriceChange={setDeliveryPrice}
-        />
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+        >
+          <Cart
+            items={cartItems}
+            onRemoveItem={handleRemoveItem}
+            onClearCart={handleClearCart}
+            deliveryPrice={deliveryPrice}
+            selectedNeighborhood={selectedNeighborhood}
+            deliveryAddress={deliveryAddress}
+            paymentMethod={paymentMethod}
+            cashAmount={cashAmount}
+            onSetDeliveryAddress={handleSetDeliveryAddress}
+            onSetPaymentMethod={handleSetPaymentMethod}
+            onSetCashAmount={handleSetCashAmount}
+          />
+        </motion.section>
 
         <Testimonials />
       </main>
-
-      <Cart
-        menuItems={menuItems}
-        deliveryPrice={deliveryPrice}
-        selectedNeighborhood={selectedNeighborhood}
-        deliveryAddress={deliveryAddress}
-        paymentMethod={paymentMethod}
-        cashAmount={cashAmount}
-      />
 
       <Footer />
     </motion.div>
