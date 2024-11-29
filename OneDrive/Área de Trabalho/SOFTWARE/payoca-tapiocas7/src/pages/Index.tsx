@@ -80,7 +80,11 @@ const Index = () => {
           transition={{ delay: 0.2 }}
           className="mb-8"
         >
-          <DeliveryCheck onDeliveryCheck={handleDeliveryCheck} />
+          <DeliveryCheck 
+            onDeliveryPrice={handleDeliveryCheck} 
+            cart={cart}
+            selectedNeighborhood={selectedNeighborhood}
+          />
         </motion.section>
 
         <motion.section 
