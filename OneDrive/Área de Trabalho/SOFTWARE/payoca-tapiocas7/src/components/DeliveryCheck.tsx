@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { NEIGHBORHOODS } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import { useTapiocaCount } from '@/hooks/useTapiocaCount';
+import { useNavigate } from 'react-router-dom';
 
 const PROMO_NEIGHBORHOODS = ['Salvador Lyra', 'Antares', 'Santa Lucia', 'Cleto Marques Luz'];
 
@@ -31,8 +32,27 @@ const DeliveryCheck = ({ onDeliveryPrice, cart, selectedNeighborhood: propSelect
     minutes: 59,
     seconds: 59
   });
+  const [clicks, setClicks] = useState(0);
+  const navigate = useNavigate();
 
   const tapiocaCount = useTapiocaCount(cart);
+
+  const handleDeliveryBoyClick = () => {
+    setClicks(prev => {
+      const newCount = prev + 1;
+      if (newCount >= 3) {
+        setClicks(0);
+        navigate('/admin/login');
+        return 0;
+      }
+      return newCount;
+    });
+
+    // Reset clicks after 2 seconds
+    setTimeout(() => {
+      setClicks(0);
+    }, 2000);
+  };
 
   // Função auxiliar para calcular o preço da entrega
   const calculateDeliveryPrice = (neighborhood: Neighborhood) => {
@@ -49,35 +69,35 @@ const DeliveryCheck = ({ onDeliveryPrice, cart, selectedNeighborhood: propSelect
   useEffect(() => {
     const updateTimer = () => {
       const now = new Date();
-      let targetDate = new Date();
-      targetDate.setDate(targetDate.getDate() + 1);
-      targetDate.setHours(23, 59, 59, 999);
+      const end = new Date();
+      end.setHours(21, 0, 0, 0);
 
-      const difference = targetDate.getTime() - now.getTime();
+      if (now > end) {
+        end.setDate(end.getDate() + 1);
+      }
 
-      setTimeLeft({
-        days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-        hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
-        minutes: Math.floor((difference / 1000 / 60) % 60),
-        seconds: Math.floor((difference / 1000) % 60)
-      });
+      const diff = end.getTime() - now.getTime();
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      setTimeLeft({ days, hours, minutes, seconds });
     };
 
     const timer = setInterval(updateTimer, 1000);
-    updateTimer(); // Chamada inicial
-
     return () => clearInterval(timer);
   }, []);
 
   useEffect(() => {
-    if (propSelectedNeighborhood) {
-      setSelectedNeighborhood(propSelectedNeighborhood);
-      const neighborhood = NEIGHBORHOODS.find(n => n.name === propSelectedNeighborhood);
+    if (selectedNeighborhood) {
+      const neighborhood = NEIGHBORHOODS.find(n => n.name === selectedNeighborhood);
       if (neighborhood) {
-        updateDeliveryInfo(neighborhood, propSelectedNeighborhood);
+        updateDeliveryInfo(neighborhood, selectedNeighborhood);
       }
     }
-  }, [propSelectedNeighborhood, tapiocaCount]);
+  }, [selectedNeighborhood, tapiocaCount]);
 
   const handleNeighborhoodSelect = (value: string) => {
     setSelectedNeighborhood(value);
@@ -185,6 +205,23 @@ const DeliveryCheck = ({ onDeliveryPrice, cart, selectedNeighborhood: propSelect
               </div>
             </div>
           )}
+        </div>
+      </div>
+
+      <div 
+        className="flex flex-col items-center cursor-pointer select-none"
+        onClick={handleDeliveryBoyClick}
+        title="Entregador"
+      >
+        <div className="text-4xl mb-2">🛵</div>
+        <div className="bg-primary/10 rounded-lg p-4">
+          <h3 className="font-semibold text-secondary mb-2">Promoção Frete Grátis!</h3>
+          <p className="text-sm text-gray-600 mb-2">
+            Pedidos com 5 ou mais tapiocas têm frete grátis para bairros até 3km!
+          </p>
+          <div className="text-xs text-gray-500">
+            Termina em: {String(timeLeft.hours).padStart(2, '0')}:{String(timeLeft.minutes).padStart(2, '0')}:{String(timeLeft.seconds).padStart(2, '0')}
+          </div>
         </div>
       </div>
     </div>
