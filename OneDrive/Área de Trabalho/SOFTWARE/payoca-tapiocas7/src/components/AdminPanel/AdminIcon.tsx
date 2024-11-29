@@ -1,34 +1,23 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { LuShieldCheck } from "react-icons/lu";
 
 const AdminIcon: React.FC = () => {
-    const [clicks, setClicks] = useState(0);
     const navigate = useNavigate();
     
     const handleClick = () => {
-        setClicks(prev => {
-            const newCount = prev + 1;
-            if (newCount >= 3) { // Requer 3 cliques para mostrar o login
-                setClicks(0);
-                navigate('/admin/login');
-            }
-            return newCount;
-        });
-
-        // Reset clicks after 2 seconds if not completed
-        setTimeout(() => {
-            setClicks(0);
-        }, 2000);
+        navigate('/admin/login');
     };
 
     return (
-        <div 
+        <button 
             onClick={handleClick}
-            className="cursor-default opacity-30 hover:opacity-40 transition-opacity"
-            style={{ fontSize: '14px' }}
+            className="flex items-center gap-2 text-white/70 hover:text-white transition-colors"
+            title="Área Administrativa"
         >
-            👤
-        </div>
+            <LuShieldCheck className="w-4 h-4" />
+            <span className="text-sm">Área Administrativa</span>
+        </button>
     );
 };
 
