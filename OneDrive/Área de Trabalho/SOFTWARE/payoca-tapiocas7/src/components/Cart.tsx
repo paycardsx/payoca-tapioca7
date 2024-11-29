@@ -17,6 +17,7 @@ export interface CartItem {
   name: string;
   quantity: number;
   price: number;
+  notes?: string;
 }
 
 interface CartProps {
@@ -131,7 +132,11 @@ const Cart = ({
     message += `*Cliente:* ${deliveryAddress.name} ${deliveryAddress.surname}\n\n`;
     message += `*Itens:*\n`;
     items.forEach(item => {
-      message += `${item.quantity}x ${item.name} - R$ ${(item.price * item.quantity).toFixed(2)}\n`;
+      message += `${item.quantity}x ${item.name} - R$ ${(item.price * item.quantity).toFixed(2)}`;
+      if (item.notes) {
+        message += `\n   _Obs: ${item.notes}_`;
+      }
+      message += '\n';
     });
     
     message += `\n*Subtotal:* R$ ${subtotal.toFixed(2)}`;

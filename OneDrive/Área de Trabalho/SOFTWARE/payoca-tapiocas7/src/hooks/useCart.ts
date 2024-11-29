@@ -6,23 +6,24 @@ export interface CartItem {
   name: string;
   quantity: number;
   price: number;
+  notes?: string;
 }
 
 export const useCart = () => {
-  const [cart, setCart] = useState<Record<string, number>>({});
+  const [cart, setCart] = useState<Record<string, CartItem>>({});
   const [deliveryAddress, setDeliveryAddress] = useState<DeliveryAddress | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<string>('');
   const [cashAmount, setCashAmount] = useState<number>(0);
 
   const handleAddItem = (id: string) => {
-    setCart(prev => ({ ...prev, [id]: (prev[id] || 0) + 1 }));
+    setCart(prev => ({ ...prev, [id]: { id, quantity: 1, price: 0, name: '' } }));
   };
 
   const handleRemoveItem = (id: string) => {
     setCart(prev => {
       const newCart = { ...prev };
-      if (newCart[id] > 1) {
-        newCart[id]--;
+      if (newCart[id].quantity > 1) {
+        newCart[id].quantity--;
       } else {
         delete newCart[id];
       }
@@ -49,6 +50,16 @@ export const useCart = () => {
     setCashAmount(amount);
   };
 
+  const handleUpdateNotes = (itemId: string, notes: string) => {
+    setCart(prev => ({
+      ...prev,
+      [itemId]: {
+        ...prev[itemId],
+        notes
+      }
+    }));
+  };
+
   return {
     cart,
     deliveryAddress,
@@ -59,6 +70,7 @@ export const useCart = () => {
     handleClearCart,
     handleSetDeliveryAddress,
     handleSetPaymentMethod,
-    handleSetCashAmount
+    handleSetCashAmount,
+    handleUpdateNotes
   };
 };
