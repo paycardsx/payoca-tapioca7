@@ -11,12 +11,6 @@ import PaymentForm from './PaymentForm';
 import { NEIGHBORHOODS } from '@/lib/constants';
 import { ShoppingBag, X, ChevronRight, MapPin, CreditCard, Send } from 'lucide-react';
 import { useCart } from '@/hooks/useCart';
-import { 
-  isEligibleForFreeDelivery, 
-  getDiscountedDeliveryPrice, 
-  getRemainingForFreeDelivery,
-  getActivePromotions 
-} from '@/lib/promotions';
 
 export interface CartItem {
   id: string;
@@ -61,26 +55,28 @@ const Cart = ({
     handleSetCashAmount
   } = useCart();
 
-  // Calcula o subtotal
+  const PROMO_NEIGHBORHOODS = ['Salvador Lyra', 'Antares', 'Santa Lucia', 'Cleto Marques Luz'];
+  const PROMO_DELIVERY_PRICE = 2.00;
+
   const subtotal = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  const finalDeliveryPrice = items.filter(item => {
+    const allTapiocas = [...menuItems.salgadas, ...menuItems.doces];
+    return allTapiocas.some(tapioca => tapioca.id === item.id);
+  }).length >= 5 ? 0 : 
+    PROMO_NEIGHBORHOODS.includes(selectedNeighborhood) ? PROMO_DELIVERY_PRICE : 
+    deliveryPrice;
+  const total = subtotal + finalDeliveryPrice;
+  const change = cashAmount > total ? cashAmount - total : 0;
   
   // Filtra apenas tapiocas (exclui bebidas)
   const tapiocaItems = items.filter(item => {
     const allTapiocas = [...menuItems.salgadas, ...menuItems.doces];
     return allTapiocas.some(tapioca => tapioca.id === item.id);
   });
-  
+
   const tapiocaCount = tapiocaItems.reduce((acc, item) => acc + item.quantity, 0);
-  
-  // Calcula o frete final usando as novas funções de promoção
-  const finalDeliveryPrice = isEligibleForFreeDelivery(tapiocaCount) 
-    ? 0 
-    : getDiscountedDeliveryPrice(selectedNeighborhood) || deliveryPrice;
-  
-  const total = subtotal + finalDeliveryPrice;
-  const change = cashAmount > total ? cashAmount - total : 0;
-  const remainingForFreeDelivery = getRemainingForFreeDelivery(tapiocaCount);
-  const activePromotions = getActivePromotions();
+  const totalItemCount = items.reduce((acc, item) => acc + item.quantity, 0);
+  const remainingForFreeDelivery = Math.max(5 - tapiocaCount, 0);
 
   const handleExpand = () => {
     if (items.length === 0) {
