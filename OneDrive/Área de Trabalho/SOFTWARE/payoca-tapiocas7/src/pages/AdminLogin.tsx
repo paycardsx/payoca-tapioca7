@@ -1,71 +1,111 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { LuShieldCheck, LuUser, LuLock, LuArrowLeft } from "react-icons/lu";
+import { motion } from 'framer-motion';
+import { toast } from 'sonner';
 
 const AdminLogin: React.FC = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
     const navigate = useNavigate();
 
     const handleLogin = (e: React.FormEvent) => {
         e.preventDefault();
         
-        // Credenciais hardcoded (em produção, isso deveria ser mais seguro)
         if (username === 'adm' && password === '160720') {
             localStorage.setItem('adminAuthenticated', 'true');
+            toast.success('Login realizado com sucesso!');
             navigate('/admin/dashboard');
         } else {
-            setError('Credenciais inválidas');
+            toast.error('Credenciais inválidas');
         }
     };
 
+    const handleBack = () => {
+        navigate('/');
+    };
+
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100">
-            <div className="bg-white p-8 rounded-lg shadow-md w-96">
-                <h2 className="text-2xl font-bold mb-6 text-center">Login Administrativo</h2>
-                
-                {error && (
-                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                        {error}
-                    </div>
-                )}
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="min-h-screen bg-surface flex items-center justify-center p-4"
+        >
+            <div className="w-full max-w-md">
+                <motion.div
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.1 }}
+                    className="bg-white rounded-lg shadow-lg p-6 md:p-8"
+                >
+                    <button
+                        onClick={handleBack}
+                        className="flex items-center gap-2 text-secondary hover:text-secondary/80 transition-colors mb-6"
+                    >
+                        <LuArrowLeft className="w-4 h-4" />
+                        <span>Voltar</span>
+                    </button>
 
-                <form onSubmit={handleLogin}>
-                    <div className="mb-4">
-                        <label className="block text-gray-700 text-sm font-bold mb-2">
-                            Usuário
-                        </label>
-                        <input
-                            type="text"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
-                            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                        />
-                    </div>
-
-                    <div className="mb-6">
-                        <label className="block text-gray-700 text-sm font-bold mb-2">
-                            Senha
-                        </label>
-                        <input
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
-                        />
+                    <div className="flex items-center justify-center mb-8">
+                        <div className="bg-primary/10 p-3 rounded-full">
+                            <LuShieldCheck className="w-8 h-8 text-secondary" />
+                        </div>
                     </div>
 
-                    <div className="flex items-center justify-between">
+                    <h2 className="text-2xl font-bold text-center text-secondary mb-6">
+                        Área Administrativa
+                    </h2>
+                    
+                    <form onSubmit={handleLogin} className="space-y-6">
+                        <div className="space-y-2">
+                            <label className="block text-sm font-medium text-secondary">
+                                Usuário
+                            </label>
+                            <div className="relative">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <LuUser className="h-5 w-5 text-gray-400" />
+                                </div>
+                                <input
+                                    type="text"
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
+                                    className="block w-full pl-10 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+                                    placeholder="Digite seu usuário"
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="block text-sm font-medium text-secondary">
+                                Senha
+                            </label>
+                            <div className="relative">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <LuLock className="h-5 w-5 text-gray-400" />
+                                </div>
+                                <input
+                                    type="password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    className="block w-full pl-10 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+                                    placeholder="Digite sua senha"
+                                    required
+                                />
+                            </div>
+                        </div>
+
                         <button
                             type="submit"
-                            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full"
+                            className="w-full bg-primary text-secondary font-medium py-2 px-4 rounded-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 transition-colors"
                         >
                             Entrar
                         </button>
-                    </div>
-                </form>
+                    </form>
+                </motion.div>
             </div>
-        </div>
+        </motion.div>
     );
 };
 
