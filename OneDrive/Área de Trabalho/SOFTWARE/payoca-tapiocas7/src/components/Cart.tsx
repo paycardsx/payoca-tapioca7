@@ -17,46 +17,39 @@ export interface CartItem {
   name: string;
   quantity: number;
   price: number;
-  notes?: string;
 }
 
 interface CartProps {
   items: CartItem[];
   deliveryPrice: number;
   selectedNeighborhood: string;
-  deliveryAddress?: DeliveryAddress;
-  paymentMethod?: string;
-  cashAmount?: number;
   onRemoveItem: (id: string) => void;
   onIncreaseQuantity: (id: string) => void;
   onClearCart: () => void;
   onSetDeliveryAddress: (address: DeliveryAddress) => void;
-  onSetPaymentMethod: (method: string) => void;
-  onSetCashAmount: (amount: number) => void;
-  menuItems: Record<string, CartItem>;
+  menuItems: {
+    salgadas: any[];
+    doces: any[];
+    bebidas: any[];
+  };
 }
 
 const Cart = ({ 
   items, 
   deliveryPrice, 
   selectedNeighborhood,
-  deliveryAddress,
-  paymentMethod,
-  cashAmount,
   onRemoveItem, 
   onIncreaseQuantity,
   onClearCart,
   onSetDeliveryAddress,
-  onSetPaymentMethod,
-  onSetCashAmount,
   menuItems
 }: CartProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [step, setStep] = useState<'cart' | 'address' | 'payment'>('cart');
   const { 
-    deliveryAddress: cartDeliveryAddress, 
-    paymentMethod: cartPaymentMethod, 
-    cashAmount: cartCashAmount,
+    deliveryAddress, 
+    paymentMethod, 
+    cashAmount,
     handleSetDeliveryAddress: setDeliveryAddressFromCart,
     handleSetPaymentMethod,
     handleSetCashAmount
@@ -132,11 +125,7 @@ const Cart = ({
     message += `*Cliente:* ${deliveryAddress.name} ${deliveryAddress.surname}\n\n`;
     message += `*Itens:*\n`;
     items.forEach(item => {
-      message += `${item.quantity}x ${item.name} - R$ ${(item.price * item.quantity).toFixed(2)}`;
-      if (item.notes) {
-        message += `\n   _Obs: ${item.notes}_`;
-      }
-      message += '\n';
+      message += `${item.quantity}x ${item.name} - R$ ${(item.price * item.quantity).toFixed(2)}\n`;
     });
     
     message += `\n*Subtotal:* R$ ${subtotal.toFixed(2)}`;

@@ -1,47 +1,48 @@
 import React from 'react';
-import { X, ChevronLeft } from 'lucide-react';
+import { X, ArrowLeft } from 'lucide-react';
 
 interface CartHeaderProps {
-  step: number;
+  step: 'cart' | 'address' | 'payment';
   onClose: () => void;
   onBack: () => void;
+  showBack: boolean;
 }
 
-const CartHeader: React.FC<CartHeaderProps> = ({ step, onClose, onBack }) => {
+const CartHeader = ({ step, onClose, onBack, showBack }: CartHeaderProps) => {
   const getTitle = () => {
     switch (step) {
-      case 1:
+      case 'cart':
         return 'Seu Carrinho';
-      case 2:
+      case 'address':
         return 'Endereço de Entrega';
-      case 3:
+      case 'payment':
         return 'Forma de Pagamento';
-      case 4:
-        return 'Resumo do Pedido';
       default:
-        return 'Carrinho';
+        return '';
     }
   };
 
   return (
-    <div className="flex items-center justify-between p-4 border-b">
-      <div className="flex items-center">
-        {step > 1 && (
-          <button
-            onClick={onBack}
-            className="mr-2 p-2 hover:bg-gray-100 rounded-full transition-colors"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-        )}
-        <h2 className="text-lg font-semibold">{getTitle()}</h2>
+    <div className="sticky top-0 z-10 bg-white border-b border-gray-200">
+      <div className="flex items-center justify-between p-4">
+        <div className="flex items-center gap-3">
+          {showBack && (
+            <button
+              onClick={onBack}
+              className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+            >
+              <ArrowLeft className="w-6 h-6 text-gray-600" />
+            </button>
+          )}
+          <h2 className="text-lg font-semibold text-gray-900">{getTitle()}</h2>
+        </div>
+        <button
+          onClick={onClose}
+          className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+        >
+          <X className="w-6 h-6 text-gray-600" />
+        </button>
       </div>
-      <button
-        onClick={onClose}
-        className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-      >
-        <X className="w-5 h-5" />
-      </button>
     </div>
   );
 };

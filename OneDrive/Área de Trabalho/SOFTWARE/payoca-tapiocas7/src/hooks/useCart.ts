@@ -6,33 +6,51 @@ export interface CartItem {
   name: string;
   quantity: number;
   price: number;
-  notes?: string;
+  options?: Record<string, boolean>;
 }
 
 export const useCart = () => {
-  const [cart, setCart] = useState<Record<string, CartItem>>({});
+  const [cart, setCart] = useState<Record<string, number>>({});
+  const [itemOptions, setItemOptions] = useState<Record<string, Record<string, boolean>>>({});
   const [deliveryAddress, setDeliveryAddress] = useState<DeliveryAddress | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<string>('');
   const [cashAmount, setCashAmount] = useState<number>(0);
 
   const handleAddItem = (id: string) => {
-    setCart(prev => ({ ...prev, [id]: { id, quantity: 1, price: 0, name: '' } }));
+    setCart(prev => ({ ...prev, [id]: (prev[id] || 0) + 1 }));
   };
 
   const handleRemoveItem = (id: string) => {
     setCart(prev => {
       const newCart = { ...prev };
-      if (newCart[id].quantity > 1) {
-        newCart[id].quantity--;
+      if (newCart[id] > 1) {
+        newCart[id]--;
       } else {
         delete newCart[id];
+        // Limpar as opções quando o último item é removido
+        setItemOptions(prev => {
+          const newOptions = { ...prev };
+          delete newOptions[id];
+          return newOptions;
+        });
       }
       return newCart;
     });
   };
 
+  const handleSetItemOption = (itemId: string, optionId: string, value: boolean) => {
+    setItemOptions(prev => ({
+      ...prev,
+      [itemId]: {
+        ...(prev[itemId] || {}),
+        [optionId]: value
+      }
+    }));
+  };
+
   const handleClearCart = () => {
     setCart({});
+    setItemOptions({});
     setDeliveryAddress(null);
     setPaymentMethod('');
     setCashAmount(0);
@@ -50,27 +68,18 @@ export const useCart = () => {
     setCashAmount(amount);
   };
 
-  const handleUpdateNotes = (itemId: string, notes: string) => {
-    setCart(prev => ({
-      ...prev,
-      [itemId]: {
-        ...prev[itemId],
-        notes
-      }
-    }));
-  };
-
   return {
     cart,
+    itemOptions,
     deliveryAddress,
     paymentMethod,
     cashAmount,
     handleAddItem,
     handleRemoveItem,
+    handleSetItemOption,
     handleClearCart,
     handleSetDeliveryAddress,
     handleSetPaymentMethod,
-    handleSetCashAmount,
-    handleUpdateNotes
+    handleSetCashAmount
   };
 };

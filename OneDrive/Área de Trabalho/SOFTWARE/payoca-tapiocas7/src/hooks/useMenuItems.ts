@@ -1,20 +1,6 @@
 import { useState } from 'react';
 
-interface MenuItem {
-  id: string;
-  name: string;
-  price: number;
-  description: string;
-  imageUrl: string;
-}
-
-interface MenuItems {
-  salgadas: MenuItem[];
-  doces: MenuItem[];
-  bebidas: MenuItem[];
-}
-
-const INITIAL_MENU_ITEMS: MenuItems = {
+const INITIAL_MENU_ITEMS = {
   salgadas: [
     { 
       id: '1', 
@@ -72,35 +58,42 @@ const INITIAL_MENU_ITEMS: MenuItems = {
     { 
       id: 'b1', 
       name: 'Suco de Acerola', 
-      price: 5.00, 
-      description: 'Suco natural de Acerola (300ml)',
+      price: 6.80, 
+      description: 'Suco natural de Acerola (400ml)',
       imageUrl: '/suco-acerola.jpg'
     },
     { 
       id: 'b2', 
       name: 'Suco de Goiaba', 
-      price: 5.00, 
-      description: 'Suco natural de Goiaba (300ml)',
+      price: 6.80, 
+      description: 'Suco natural de Goiaba (400ml)',
       imageUrl: '/suco-goiaba.jpg'
     },
     { 
       id: 'b3', 
       name: 'Suco de Manga', 
-      price: 5.00, 
-      description: 'Suco natural de Manga (300ml)',
+      price: 6.80, 
+      description: 'Suco natural de Manga (400ml)',
       imageUrl: '/suco-manga.jpg'
     },
     { 
       id: 'b4', 
       name: 'Café Quente', 
-      price: 5.00, 
-      description: 'Café quente tradicional (200ml)',
-      imageUrl: '/cafe.jpg'
+      price: 4.80, 
+      description: 'Café quente tradicional (295ml) • Leite opcional',
+      imageUrl: '/cafe.jpg',
+      options: [
+        {
+          id: 'milk',
+          name: 'Adicionar Leite',
+          default: false
+        }
+      ]
     }
   ]
 };
 
 export const useMenuItems = () => {
-  const [menuItems] = useState<MenuItems>(INITIAL_MENU_ITEMS);
+  const [menuItems] = useState(INITIAL_MENU_ITEMS);
   return { menuItems };
 };

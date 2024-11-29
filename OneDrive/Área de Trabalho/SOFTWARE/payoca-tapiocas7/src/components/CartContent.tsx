@@ -8,7 +8,6 @@ interface CartContentProps {
   items: CartItem[];
   onRemoveItem: (itemId: string) => void;
   onIncreaseQuantity: (itemId: string) => void;
-  onUpdateNotes: (itemId: string, notes: string) => void;
   deliveryPrice: number;
   selectedNeighborhood: string;
   menuItems: {
@@ -25,7 +24,6 @@ const CartContent = ({
   items, 
   onRemoveItem, 
   onIncreaseQuantity,
-  onUpdateNotes,
   deliveryPrice,
   selectedNeighborhood,
   menuItems
@@ -78,58 +76,48 @@ const CartContent = ({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 className={cn(
-                  "flex flex-col gap-3 p-3 md:p-4 rounded-xl border border-gray-100",
+                  "flex flex-col md:flex-row items-start md:items-center gap-3 p-3 md:p-4 rounded-xl border border-gray-100",
                   "bg-white shadow-sm hover:shadow-md transition-all duration-200"
                 )}
               >
-                <div className="flex justify-between items-start">
-                  <div className="flex-1 space-y-1">
-                    <h3 className="font-medium text-gray-900">{item.name}</h3>
-                    <p className="text-sm font-medium text-primary">
-                      R$ {item.price.toFixed(2)}
-                    </p>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => onRemoveItem(item.id)}
-                      className={cn(
-                        "w-8 h-8 flex items-center justify-center rounded-lg transition-all",
-                        "hover:bg-gray-100 active:scale-95",
-                        item.quantity === 1 && "text-red-500 hover:bg-red-50"
-                      )}
-                    >
-                      {item.quantity === 1 ? (
-                        <Trash2 className="w-4 h-4" />
-                      ) : (
-                        <Minus className="w-4 h-4" />
-                      )}
-                    </button>
-                    
-                    <span className="w-8 text-center font-medium text-gray-900">
-                      {item.quantity}
-                    </span>
-                    
-                    <button
-                      onClick={() => onIncreaseQuantity(item.id)}
-                      className={cn(
-                        "w-8 h-8 flex items-center justify-center rounded-lg",
-                        "hover:bg-primary/10 active:scale-95 transition-all",
-                        "text-primary"
-                      )}
-                    >
-                      <Plus className="w-4 h-4" />
-                    </button>
-                  </div>
+                <div className="flex-1 w-full md:w-auto space-y-1">
+                  <h3 className="font-medium text-gray-900">{item.name}</h3>
+                  <p className="text-sm font-medium text-primary">
+                    R$ {item.price.toFixed(2)}
+                  </p>
                 </div>
 
-                <textarea
-                  placeholder="Alguma observação? Ex: sem queijo, sem manteiga..."
-                  value={item.notes || ''}
-                  onChange={(e) => onUpdateNotes(item.id, e.target.value)}
-                  className="w-full px-3 py-2 text-sm border rounded-lg focus:ring-1 focus:ring-[#8B4513] focus:border-[#8B4513] resize-none"
-                  rows={2}
-                />
+                <div className="flex items-center gap-2 w-full md:w-auto justify-between md:justify-end">
+                  <button
+                    onClick={() => onRemoveItem(item.id)}
+                    className={cn(
+                      "w-8 h-8 flex items-center justify-center rounded-lg transition-all",
+                      "hover:bg-gray-100 active:scale-95",
+                      item.quantity === 1 && "text-red-500 hover:bg-red-50"
+                    )}
+                  >
+                    {item.quantity === 1 ? (
+                      <Trash2 className="w-4 h-4" />
+                    ) : (
+                      <Minus className="w-4 h-4" />
+                    )}
+                  </button>
+                  
+                  <span className="w-8 text-center font-medium text-gray-900">
+                    {item.quantity}
+                  </span>
+                  
+                  <button
+                    onClick={() => onIncreaseQuantity(item.id)}
+                    className={cn(
+                      "w-8 h-8 flex items-center justify-center rounded-lg",
+                      "hover:bg-primary/10 active:scale-95 transition-all",
+                      "text-primary"
+                    )}
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
+                </div>
               </motion.div>
             ))}
 

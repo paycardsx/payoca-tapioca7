@@ -26,14 +26,28 @@ interface MenuSectionsProps {
       description: string;
       price: number;
       imageUrl?: string;
+      options?: Array<{
+        id: string;
+        name: string;
+        default: boolean;
+      }>;
     }>;
   };
   onAddItem: (id: string) => void;
   onRemoveItem: (id: string) => void;
+  onSetItemOption?: (itemId: string, optionId: string, value: boolean) => void;
   cart: Record<string, number>;
+  itemOptions?: Record<string, Record<string, boolean>>;
 }
 
-const MenuSections = ({ menuItems, onAddItem, onRemoveItem, cart }: MenuSectionsProps) => {
+const MenuSections = ({ 
+  menuItems, 
+  onAddItem, 
+  onRemoveItem, 
+  onSetItemOption,
+  cart,
+  itemOptions = {} 
+}: MenuSectionsProps) => {
   const [activeTab, setActiveTab] = useState<'salgadas' | 'doces'>('salgadas');
 
   const tabs = [
@@ -137,6 +151,22 @@ const MenuSections = ({ menuItems, onAddItem, onRemoveItem, cart }: MenuSections
                 <h3 className="font-medium text-[#8B4513] mb-1">{drink.name}</h3>
                 <p className="text-sm text-[#8B4513]/60 mb-3">{drink.description}</p>
                 <p className="font-semibold text-[#8B4513] mb-3">R$ {drink.price.toFixed(2)}</p>
+                
+                {/* Opção de leite para café */}
+                {drink.options?.map(option => (
+                  <div key={option.id} className="mb-3">
+                    <label className="flex items-center justify-center gap-2 text-sm text-[#8B4513]/80 cursor-pointer hover:text-[#8B4513]">
+                      <input
+                        type="checkbox"
+                        className="w-4 h-4 rounded border-[#8B4513]/30 text-[#8B4513] focus:ring-[#8B4513]"
+                        checked={itemOptions[drink.id]?.[option.id] ?? option.default}
+                        onChange={(e) => onSetItemOption?.(drink.id, option.id, e.target.checked)}
+                      />
+                      {option.name}
+                    </label>
+                  </div>
+                ))}
+
                 <div className="flex justify-center gap-2">
                   {cart[drink.id] > 0 && (
                     <button

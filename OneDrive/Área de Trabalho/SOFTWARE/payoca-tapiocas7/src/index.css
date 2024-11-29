@@ -60,11 +60,9 @@ h1, h2, h3, h4, h5, h6 {
 
 @keyframes slideDown {
   from {
-    opacity: 0;
-    transform: translateY(-10px);
+    transform: translateY(-100%);
   }
   to {
-    opacity: 1;
     transform: translateY(0);
   }
 }
